@@ -1,3 +1,4 @@
+
 # mateus medeiros
 
 ## 1.analise o arquivo Sensor.h para possiveis erros
@@ -17,3 +18,7 @@ No construtor Sensor(string tag, string unidade);, os parâmetros estão sendo p
 Como corrigir: Passe por referência constante (const std::string&).
 
 * *todas as 3 alterações foram levadas em consideração para o arquivo em questão e tambem para arquivos futuros*
+
+=======
+
+# julia roveta
