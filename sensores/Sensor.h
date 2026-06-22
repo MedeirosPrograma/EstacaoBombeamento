@@ -1,6 +1,6 @@
 #ifndef SENSOR_H
 #define SENSOR_H
-#include "Tipos.h"
+#include "../Tipos.h"
 //o sensor futuramente deve conhecer o tanque
 #include "Tanque.h"
 #include <string>
@@ -18,7 +18,7 @@ protected:
 public:
     Sensor(const std::string& nTag, const std::string& nUnidade, const bool& nligado);//passagem de referencia por constante sugerida no cap 2 do AI_log
     virtual ~Sensor() = default; // Destrutor virtual sugerido no cap 1 do AI_log
-
+    virtual void atualizarLeitura(const Tanque& tanque) = 0;
     double getvalor() const {return valorAtual; }
     bool funcionando() const {return ligado; }
     std::string getTag() const {return tag; }

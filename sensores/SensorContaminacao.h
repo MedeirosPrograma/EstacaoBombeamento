@@ -1,6 +1,6 @@
 #ifndef SENSOR_CONTAMINACAO_H
 #define SENSOR_CONTAMINACAO_H
-#include "Tanque.h"
+#include "../Tanque.h"
 #include "Sensor.h"
 
 class SensorContaminacao : public Sensor {

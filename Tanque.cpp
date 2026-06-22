@@ -3,7 +3,7 @@
 #include <algorithm> // Para usar o std::clamp
 
 // Construtor corrigido: inicializa também a variável de contaminação
-Tanque::Tanque() : nivelAtual(0.0), pressaoAtual(2.0), vazaoAtual(0.0), contaminado(false) {}
+Tanque::Tanque() : nivelAtual(50.0), pressaoAtual(2.0), vazaoAtual(0.0), contaminado(false) {}
 
 void Tanque::simularFisica(const std::vector<Bomba*>& listaBombas) {
     static std::random_device rd;

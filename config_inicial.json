@@ -1,0 +1,15 @@
+{
+  "id_estacao": "EB-016-NORMAL",
+  "sensores_iniciais": [
+    { "tipo": "NIVEL", "tag": "LT-101", "unidade": "%", "ligado": true},
+    { "tipo": "VAZAO", "tag": "FT-201", "unidade": "L/s", "ligado": true },
+    { "tipo": "PRESSAO", "tag": "PT-301", "unidade": "kPa", "ligado": true },
+    { "tipo": "CONTAMINACAO", "tag": "CNT-389", "unidade": "n/a", "ligado": true }
+  ],
+  "bombas_iniciais": [
+    { "tag": "BMB-00", "grupo": 1, "ligada": false, "emFalha": false, "tipo": true },
+    { "tag": "BMB-01", "grupo": 1, "ligada": false, "emFalha": false, "tipo": false },
+    { "tag": "BMB-02", "grupo": 2, "ligada": false, "emFalha": false, "tipo": true },
+    { "tag": "BMB-03", "grupo": 2, "ligada": false, "emFalha": false, "tipo": false }
+  ]
+}
