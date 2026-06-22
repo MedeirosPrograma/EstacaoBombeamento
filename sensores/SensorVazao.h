@@ -1,6 +1,6 @@
 #ifndef SENSOR_VAZAO_H
 #define SENSOR_VAZAO_H
-#include "Tanque.h"
+#include "../Tanque.h"
 #include "Sensor.h"
 
 class SensorVazao : public Sensor {

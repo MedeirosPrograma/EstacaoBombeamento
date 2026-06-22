@@ -2,7 +2,7 @@
 #define TANQUE_H
 
 #include <vector>
-#include "Bomba.h" // O tanque precisa conhecer a classe Bomba para ler os métodos dela
+#include "Atuadores/Bomba.h" // O tanque precisa conhecer a classe Bomba para ler os métodos dela
 
 class Tanque {
 private:

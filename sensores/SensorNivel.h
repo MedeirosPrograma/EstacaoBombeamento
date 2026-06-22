@@ -1,6 +1,6 @@
 #ifndef SENSOR_NIVEL_H
 #define SENSOR_NIVEL_H
-#include "Tanque.h"
+#include "../Tanque.h"
 #include "Sensor.h"
 
 class SensorNivel : public Sensor {

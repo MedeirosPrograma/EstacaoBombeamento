@@ -12,7 +12,7 @@ private:
 public:
     Bomba(const std::string& nTag, int nGrupo,bool nEstado, bool nFalha, bool nTipo);
     virtual ~Bomba() = default;
-    virtual void ligar();
+    void ligar();
     void desligar();
     std::string gettag() const;
     int getgrupo() const;
