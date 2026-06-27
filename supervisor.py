@@ -3,6 +3,7 @@ import json
 import os
 import csv
 import pandas as pd
+from collections import deque
 
 # Configuração da página Web
 st.set_page_config(page_title="IHM Alta Performance (ISA101)", layout="wide")
@@ -13,7 +14,6 @@ COR_PAINEL = "#F0F0F0"
 COR_TEXTO = "#333333"
 COR_BOMBA_LIGADA = "#555555"
 COR_BOMBA_DESLIGADA = "#AAAAAA"
-COR_ALERTA_FALHA = "#FF4500"
 COR_FLUIDO = "#4A708B"
 COR_FUNDO_TANQUE = "#E0E0E0"
 COR_MANUTENCAO_ON = "#4682B4"  
@@ -75,37 +75,47 @@ def renderizar_painel_dinamico():
         "BMB-02": {"ligada": False, "falha": False},
         "BMB-03": {"ligada": False, "falha": False},
     }
-
     em_manutencao = False
-    # --- LEITURA TEMPO REAL (Última Linha do CSV) ---
+    ultimos_alarmes = []  # Lista para armazenar as strings dos 5 últimos alarmes
+
     if os.path.exists(ARQUIVO_CSV):
         try:
             with open(ARQUIVO_CSV, "r") as f:
-                leitor = list(csv.reader(f, delimiter=';'))
-                if len(leitor) >= 2:
-                 ultima_linha = [celula.strip() for celula in leitor[-1]]
-                for i in range(len(ultima_linha)):
+                # O deque com maxlen=5 guarda apenas as últimas 5 linhas do arquivo na memória,
+                # evitando ler milhares de linhas antigas a cada 1 segundo.
+                ultimas_linhas_fisiças = list(deque(csv.reader(f, delimiter=';'), maxlen=5))
+                
+                if ultimas_linhas_fisiças:
+                    ultima_linha = [celula.strip() for celula in ultimas_linhas_fisiças[-1]]
                     
-                    # 1. Captura de Nível
-                    if "%" in ultima_linha[i]:
-                        try: nivel_atual = float(ultima_linha[i - 1])
-                        except ValueError: pass
-                    
-                    # 2. Captura de Manutenção vinda da Telemetria do C++
-                    if "EB-016-NORMAL" in ultima_linha[i]:
-                        try: 
-                            # Converte a string "True"/"1" para booleano real do Python
-                            valor_csv = ultima_linha[i + 1].strip()
-                            em_manutencao = valor_csv in ["True", "true", "1"]
-                        except IndexError: 
-                            pass
-                    
-                    # 3. Captura do Estado das Bombas
-                    if ultima_linha[i] in estados_bombas:
-                        tag_encontrada = ultima_linha[i]
-                        if i + 4 < len(ultima_linha):
-                            estados_bombas[tag_encontrada]["ligada"] = (ultima_linha[i + 3] == "Ligada")
-                            estados_bombas[tag_encontrada]["falha"] = (ultima_linha[i + 4] == "emFalha")
+                    for i in range(len(ultima_linha)):
+                        # Captura de Nível
+                        if "%" in ultima_linha[i]:
+                            try: nivel_atual = float(ultima_linha[i - 1])
+                            except ValueError: pass
+                        
+                        # Captura de Manutenção vinda da Telemetria do C++
+                        if "EB-016-NORMAL" in ultima_linha[i]:
+                            try: 
+                                valor_csv = ultima_linha[i + 1].strip()
+                                em_manutencao = valor_csv in ["True", "true", "1"]
+                            except IndexError: pass
+                        
+                        # Captura do Estado Atual das Bombas
+                        if ultima_linha[i] in estados_bombas:
+                            tag_encontrada = ultima_linha[i]
+                            if i + 4 < len(ultima_linha):
+                                estados_bombas[tag_encontrada]["ligada"] = (ultima_linha[i + 3] == "Ligada")
+
+                    for linha in reversed(ultimas_linhas_fisiças):
+                        if len(linha) > 0:
+                            string_alarme = linha[-1].strip() 
+                            if string_alarme and string_alarme != "ultimo_alarme" and "Nenhum" not in string_alarme:
+                                timestamp = linha[0].strip()
+                                ultimos_alarmes.append({
+                                    "Horário": timestamp,
+                                    "Alarme": string_alarme
+                                })
         except Exception:
             pass
 
@@ -225,6 +235,27 @@ def renderizar_painel_dinamico():
                         st.markdown(f'<div class="bomba-container"><h4 class="bomba-titulo">Bomba {tag}</h4></div>', unsafe_allow_html=True)
                         st.markdown(f'<style>div.stButton > button[key="btn_{tag}"] {{ background-color: {cor_status} !important; margin-top: -35px; }}</style>', unsafe_allow_html=True)
                         st.button(texto_status, key=f"btn_{tag}", on_click=enviar_comando_bomba, args=(tag, proxima_acao), use_container_width=True)
+    st.divider()
+
+    # --- 4. EXIBIÇÃO DOS ÚLTIMOS 5 ALARMES (PADRÃO ISA101) ---
+    st.markdown("### Histórico Recente de Alarmes (Últimos 5)")
+    
+    if ultimos_alarmes:
+        df_alarmes = pd.DataFrame(ultimos_alarmes)
+        st.dataframe(
+            df_alarmes, 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                "Horário": st.column_config.TextColumn("Data / Horário", width="medium"),
+                "Alarme": st.column_config.TextColumn("Descrição do Evento Crítico")
+            }
+        )
+    else:
+        st.markdown(
+            f'<div style="background-color: #E8F5E9; color: #2E7D32; padding: 10px; border-radius: 4px; font-weight: bold; text-align: center;">✓ Nenhum alarme ativo registrado no histórico recente.</div>', 
+            unsafe_allow_html=True
+        )
 
 # Executa o painel
 renderizar_painel_dinamico()
